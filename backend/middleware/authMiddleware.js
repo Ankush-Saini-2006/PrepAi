@@ -4,8 +4,13 @@ const User = require("../models/User");
 const { verifyAccessToken } = require("../utils/generateToken");
 
 const extractToken = (req) => {
-  if (req.headers.authorization?.startsWith("Bearer")) {
-    return req.headers.authorization.split(" ")[1];
+  const authHeader = req.get("authorization") || req.headers.authorization || req.headers.Authorization;
+
+  if (typeof authHeader === "string") {
+    const match = authHeader.match(/^Bearer\s+(.+)$/i);
+    if (match?.[1]) {
+      return match[1].trim();
+    }
   }
   if (req.cookies?.accessToken) {
     return req.cookies.accessToken;
@@ -21,6 +26,7 @@ const protect = asyncHandler(async (req, res, next) => {
   const token = extractToken(req);
 
   if (!token) {
+    console.warn("[auth:protect] Missing access token");
     throw new ApiError(401, "Not authorized, no token provided");
   }
 
@@ -28,6 +34,7 @@ const protect = asyncHandler(async (req, res, next) => {
   try {
     decoded = verifyAccessToken(token);
   } catch (error) {
+    console.warn(`[auth:protect] Token verification failed: ${error.name} - ${error.message}`);
     if (error.name === "TokenExpiredError") {
       throw new ApiError(401, "Access token expired");
     }
@@ -35,20 +42,24 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 
   if (decoded.type !== "access") {
+    console.warn(`[auth:protect] Invalid token type received: ${decoded.type}`);
     throw new ApiError(401, "Invalid token type");
   }
 
   const user = await User.findById(decoded.id).select("+tokenVersion");
   if (!user) {
+    console.warn(`[auth:protect] User not found for token id ${decoded.id}`);
     throw new ApiError(401, "User no longer exists");
   }
 
   // If tokenVersion has been bumped (e.g. password change, logout-all),
   // previously issued access tokens become invalid immediately.
   if (user.tokenVersion !== decoded.tokenVersion) {
+    console.warn(`[auth:protect] Token version mismatch for user ${decoded.id}: token=${decoded.tokenVersion}, db=${user.tokenVersion}`);
     throw new ApiError(401, "Session expired, please log in again");
   }
 
+  console.log(`[auth:protect] Access token verified for user ${decoded.id}`);
   req.user = user;
   next();
 });

@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 
 const PublicLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="theme-shell min-h-screen">
       <Navbar />
       <main className="animate-fade-in">
         <Outlet />

@@ -281,8 +281,11 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
 // @desc    Forgot password - sends reset link
 // @route   POST /api/auth/forgot-password
 const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  console.log(`[auth:forgot-password] Request received for ${email || "<empty email>"}`);
+
   const user = await User.findOne({ email });
+  console.log(`[auth:forgot-password] User ${user ? "found" : "not found"}`);
 
   // Always respond with success to avoid leaking which emails are registered
   if (!user) {
@@ -295,6 +298,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawResetToken}`;
+  console.log(`[auth:forgot-password] Reset token generated for ${email}`);
 
   try {
     await sendEmail({
@@ -302,11 +306,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
       subject: "PrepAI - Password Reset Request",
       html: resetPasswordEmailTemplate({ name: user.name, resetUrl }),
     });
+    console.log(`[auth:forgot-password] Reset email sent to ${user.email}`);
   } catch (error) {
+    console.error(`[auth:forgot-password] Email send failed for ${user.email}: ${error.message}`);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save({ validateBeforeSave: false });
-    throw new ApiError(500, "Email could not be sent, please try again later");
+    throw new ApiError(500, "Email could not be sent. Please check SMTP settings and try again later.");
   }
 
   res

@@ -15,10 +15,8 @@ const AuthCard = ({ title, subtitle, children }) => {
           <Link to="/" className="inline-block text-2xl font-extrabold text-primary-600">
             PrepAI
           </Link>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">{title}</h1>
-          {subtitle && (
-            <p className="mt-1.5 text-sm text-gray-500">{subtitle}</p>
-          )}
+          <h1 className="mt-4 text-2xl font-bold text-gray-900 text-center">{title}</h1>
+          {subtitle && <p className="mt-1.5 text-sm text-gray-500 text-center">{subtitle}</p>}
         </div>
 
         <div className="card shadow-md">{children}</div>

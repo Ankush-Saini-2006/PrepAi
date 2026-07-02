@@ -38,9 +38,9 @@ const LoginPage = () => {
 
   return (
     <AuthCard title="Welcome back" subtitle="Log in to continue your prep journey.">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-center" noValidate>
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center">
             {error}
           </div>
         )}
@@ -66,7 +66,7 @@ const LoginPage = () => {
           />
         </FormField>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
             <input
               type="checkbox"

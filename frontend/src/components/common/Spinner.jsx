@@ -9,7 +9,7 @@ const Spinner = ({ size = "md", fullScreen = false }) => {
 
   if (fullScreen) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">{spinner}</div>
+      <div className="theme-shell flex min-h-screen items-center justify-center">{spinner}</div>
     );
   }
 
