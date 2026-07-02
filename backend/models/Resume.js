@@ -12,12 +12,41 @@ const resumeSchema = new mongoose.Schema(
     originalName: { type: String, required: true },
     extractedText: { type: String, default: "" },
     targetRole: { type: String, default: "" },
-    atsScore: { type: Number, default: 0 },
+    atsScore: { type: Number, default: null },
     strengths: [{ type: String }],
     weaknesses: [{ type: String }],
     suggestions: [{ type: String }],
     missingKeywords: [{ type: String }],
     aiSummary: { type: String, default: "" },
+    grammarAnalysis: [
+      {
+        issue: { type: String, default: "" },
+        suggestion: { type: String, default: "" },
+      },
+    ],
+    keywordOptimization: [
+      {
+        keyword: { type: String, default: "" },
+        reason: { type: String, default: "" },
+      },
+    ],
+    skills: [{ type: String }],
+    missingSkills: [{ type: String }],
+    rewriteSuggestions: [
+      {
+        section: { type: String, default: "" },
+        original: { type: String, default: "" },
+        improved: { type: String, default: "" },
+      },
+    ],
+    projectSuggestions: [
+      {
+        title: { type: String, default: "" },
+        description: { type: String, default: "" },
+        skills: [{ type: String }],
+      },
+    ],
+    improvedResumeText: { type: String, default: "" },
     analyzedAt: { type: Date },
   },
   { timestamps: true }

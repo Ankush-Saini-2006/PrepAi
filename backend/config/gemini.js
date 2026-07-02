@@ -1,15 +1,30 @@
+const path = require("path");
+const dotenv = require("dotenv");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const ApiError = require("../utils/ApiError");
 
-if (!process.env.GEMINI_API_KEY) {
-  console.warn("⚠️  GEMINI_API_KEY not set. AI features will not work.");
-}
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const getGeminiApiKey = () => {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  console.log("GEMINI KEY:", !!apiKey);
+
+  if (!apiKey) {
+    throw new ApiError(
+      500,
+      "GEMINI_API_KEY is missing. Set it in backend/.env and restart the backend."
+    );
+  }
+
+  return apiKey;
+};
 
 const getGeminiModel = () => {
+  const genAI = new GoogleGenerativeAI(getGeminiApiKey());
+
   return genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+    model: "gemini-1.5-flash",
   });
 };
 
-module.exports = { genAI, getGeminiModel };
+module.exports = { getGeminiApiKey, getGeminiModel };

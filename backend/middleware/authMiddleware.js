@@ -34,11 +34,12 @@ const protect = asyncHandler(async (req, res, next) => {
   try {
     decoded = verifyAccessToken(token);
   } catch (error) {
+    console.log(error.message);
     console.warn(`[auth:protect] Token verification failed: ${error.name} - ${error.message}`);
     if (error.name === "TokenExpiredError") {
-      throw new ApiError(401, "Access token expired");
+      throw new ApiError(401, "Access token expired", "ACCESS_TOKEN_EXPIRED");
     }
-    throw new ApiError(401, "Not authorized, token failed");
+    throw new ApiError(401, "Not authorized, token failed", "ACCESS_TOKEN_INVALID");
   }
 
   if (decoded.type !== "access") {

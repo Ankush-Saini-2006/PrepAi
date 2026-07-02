@@ -1,13 +1,33 @@
 const { getGeminiModel } = require("../config/gemini");
+const ApiError = require("../utils/ApiError");
+
+const getGeminiErrorBody = (err) => {
+  if (err.response?.data) return err.response.data;
+  if (err.response?.body) return err.response.body;
+  if (err.errorDetails) return err.errorDetails;
+  if (err.details) return err.details;
+  if (err.cause) return err.cause;
+  return {
+    status: err.status,
+    statusText: err.statusText,
+    message: err.message,
+  };
+};
 
 /**
  * Send a prompt to Gemini and return clean text.
  */
 const generateContent = async (prompt) => {
-  const model = getGeminiModel();
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  try {
+    const model = getGeminiModel();
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return response.text();
+  } catch (err) {
+    console.error("Gemini API error:", err.message);
+    console.error("Gemini API response body:", JSON.stringify(getGeminiErrorBody(err), null, 2));
+    throw new ApiError(err.status || 502, err.message || "Gemini request failed");
+  }
 };
 
 /**
@@ -21,7 +41,7 @@ const generateJSON = async (prompt) => {
   try {
     return JSON.parse(cleaned);
   } catch (err) {
-    throw new Error("AI returned invalid JSON format");
+    throw new ApiError(502, "Gemini returned an invalid JSON response. Please retry the analysis.");
   }
 };
 
@@ -41,7 +61,22 @@ Return a JSON object with this exact structure:
   "weaknesses": ["string", ...],
   "suggestions": ["string", ...],
   "missingKeywords": ["string", ...],
-  "summary": "<2-3 sentence overall summary>"
+  "summary": "<2-3 sentence overall summary>",
+  "grammarAnalysis": [
+    { "issue": "string", "suggestion": "string" }
+  ],
+  "keywordOptimization": [
+    { "keyword": "string", "reason": "string" }
+  ],
+  "missingSkills": ["string", ...],
+  "skills": ["string", ...],
+  "rewriteSuggestions": [
+    { "section": "string", "original": "string", "improved": "string" }
+  ],
+  "projectSuggestions": [
+    { "title": "string", "description": "string", "skills": ["string", ...] }
+  ],
+  "improvedResumeText": "<plain text rewritten resume draft using only information from the resume plus clearly marked suggestions>"
 }
 `;
 

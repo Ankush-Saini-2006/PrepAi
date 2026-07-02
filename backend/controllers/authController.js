@@ -141,6 +141,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     decoded = verifyRefreshToken(incomingToken);
   } catch (error) {
+    console.log(error.message);
     res.clearCookie(REFRESH_COOKIE_NAME, baseCookieOptions);
     throw new ApiError(401, "Invalid or expired refresh token");
   }
@@ -165,6 +166,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   const user = await User.findById(decoded.id).select("+tokenVersion");
   if (!user || user.tokenVersion !== decoded.tokenVersion) {
+    res.clearCookie(REFRESH_COOKIE_NAME, baseCookieOptions);
     throw new ApiError(401, "Session expired, please log in again");
   }
 

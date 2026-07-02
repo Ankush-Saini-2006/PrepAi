@@ -43,6 +43,18 @@ export const fetchResumes = createAsyncThunk(
   }
 );
 
+export const fetchResumeById = createAsyncThunk(
+  "resume/fetchById",
+  async (resumeId, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get(`/resumes/${resumeId}`);
+      return data.data.resume;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch resume");
+    }
+  }
+);
+
 export const deleteResume = createAsyncThunk(
   "resume/delete",
   async (resumeId, { rejectWithValue }) => {
@@ -64,7 +76,14 @@ const resumeSlice = createSlice({
     analyzing: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearActiveResume: (state) => {
+      state.activeResume = null;
+    },
+    setActiveResume: (state, action) => {
+      state.activeResume = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(uploadResume.pending, (state) => {
@@ -96,11 +115,33 @@ const resumeSlice = createSlice({
       })
       .addCase(fetchResumes.fulfilled, (state, action) => {
         state.resumes = action.payload;
+        if (!state.activeResume && action.payload.length > 0) {
+          state.activeResume = action.payload[0];
+        }
+      })
+      .addCase(fetchResumeById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchResumeById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.activeResume = action.payload;
+        state.resumes = state.resumes.map((r) =>
+          r._id === action.payload._id ? action.payload : r
+        );
+      })
+      .addCase(fetchResumeById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(deleteResume.fulfilled, (state, action) => {
         state.resumes = state.resumes.filter((r) => r._id !== action.payload);
+        if (state.activeResume?._id === action.payload) {
+          state.activeResume = state.resumes[0] || null;
+        }
       });
   },
 });
+
+export const { clearActiveResume, setActiveResume } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
