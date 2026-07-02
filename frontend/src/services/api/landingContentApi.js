@@ -1,41 +1,40 @@
+import {
+  CTA_CONFIG,
+  FOOTER_CONFIG,
+  HERO_CONFIG,
+  HOW_IT_WORKS_CONFIG,
+  PRODUCT_PREVIEWS_CONFIG,
+  TESTIMONIALS_CONFIG,
+} from "../../config/hero";
+import { FAQ_CONFIG, FAQ_SECTION_CONFIG } from "../../config/faq";
+import { FEATURES_CONFIG, FEATURES_SECTION_CONFIG } from "../../config/features";
+import axiosInstance from "../../utils/axiosInstance";
+
 const landingContent = {
-  hero: {
-    badge: "AI-powered career and placement coach",
-    heading: "Your AI-Powered Career & Placement Coach",
-    description:
-      "PrepAI helps students and professionals land their dream job with AI resume analysis, mock interviews, job tracking, and personalized career roadmaps.",
-    primaryCta: { label: "Start Free Today", to: "/register" },
-    secondaryCta: { label: "I already have an account", to: "/login" },
-  },
-  features: [
-    {
-      icon: "FileText",
-      title: "AI Resume Analyzer",
-      description:
-        "Get instant ATS scoring, strengths, weaknesses and keyword suggestions.",
-    },
-    {
-      icon: "MessageSquareText",
-      title: "Mock Interviews",
-      description:
-        "Practice technical, HR, and coding interviews with real-time AI feedback.",
-    },
-    {
-      icon: "BriefcaseBusiness",
-      title: "Job Tracker",
-      description:
-        "Track every application from saved to offer with a clean visual board.",
-    },
-    {
-      icon: "Target",
-      title: "Career Roadmaps",
-      description:
-        "Personalized, milestone-based learning paths generated just for you.",
-    },
-  ],
+  hero: HERO_CONFIG,
+  featuresSection: FEATURES_SECTION_CONFIG,
+  features: FEATURES_CONFIG,
+  howItWorks: HOW_IT_WORKS_CONFIG,
+  productPreviews: PRODUCT_PREVIEWS_CONFIG,
+  testimonialsSection: TESTIMONIALS_CONFIG,
+  testimonials: [],
+  faqSection: FAQ_SECTION_CONFIG,
+  faq: FAQ_CONFIG,
+  cta: CTA_CONFIG,
+  footer: FOOTER_CONFIG,
 };
 
 export const getLandingContent = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  return landingContent;
+  const endpoint = import.meta.env.VITE_LANDING_CONTENT_ENDPOINT;
+
+  if (!endpoint) {
+    return landingContent;
+  }
+
+  const { data } = await axiosInstance.get(endpoint);
+  return {
+    ...landingContent,
+    ...data?.data,
+    testimonials: data?.data?.testimonials || [],
+  };
 };

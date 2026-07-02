@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LANDING_ERROR_CONFIG } from "../config/hero";
 import { getLandingContent } from "../services/api/landingContentApi";
 
 const useFetchLandingContent = () => {
@@ -18,7 +19,10 @@ const useFetchLandingContent = () => {
         setError(null);
       } catch (fetchError) {
         if (!active) return;
-        setError(fetchError.message || "Failed to load landing content");
+        setError({
+          ...LANDING_ERROR_CONFIG,
+          description: fetchError.message || LANDING_ERROR_CONFIG.description,
+        });
       } finally {
         if (active) {
           setLoading(false);
