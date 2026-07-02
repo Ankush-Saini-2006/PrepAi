@@ -1,24 +1,16 @@
 const express = require("express");
-const { body } = require("express-validator");
 const { updateProfile, updateAvatar, changePassword } = require("../controllers/userController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, requireVerified } = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validateMiddleware");
+const { updateProfileValidator, changePasswordValidator } = require("../validators/authValidators");
 
 const router = express.Router();
 
 router.use(protect);
 
-router.put("/profile", updateProfile);
-router.put("/avatar", upload.single("avatar"), updateAvatar);
-router.put(
-  "/change-password",
-  [
-    body("currentPassword").notEmpty(),
-    body("newPassword").isLength({ min: 6 }),
-  ],
-  validate,
-  changePassword
-);
+router.put("/profile", updateProfileValidator, validate, updateProfile);
+router.put("/avatar", requireVerified, upload.single("avatar"), updateAvatar);
+router.put("/change-password", changePasswordValidator, validate, changePassword);
 
 module.exports = router;

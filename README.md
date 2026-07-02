@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # PrepAI – AI Career & Placement Coach
 
 A production-ready MERN stack application that helps students and professionals prepare for placements with AI-powered resume analysis, mock interviews, job application tracking, and personalized career roadmaps.
@@ -106,6 +105,3 @@ All protected routes require `Authorization: Bearer <token>` header or `token` c
 - This boilerplate intentionally has **no admin panel** per project requirements.
 - Multer stores files locally and temporarily before forwarding to Cloudinary, then deletes the local copy.
 - Gemini responses are strictly parsed as JSON via prompt instructions in `services/geminiService.js`.
-=======
-# PrepAi
->>>>>>> 29f0c26fc44b59dad70be8656ec76f557a8cbf79

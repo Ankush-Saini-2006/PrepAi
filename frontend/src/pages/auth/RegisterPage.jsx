@@ -1,26 +1,37 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion";
-import useAuth from "../../hooks/useAuth";
-import { registerUser } from "../../features/auth/authSlice";
+import { registerUser, clearError } from "../../features/auth/authSlice";
+import AuthCard from "../../components/auth/AuthCard";
+import FormField from "../../components/auth/FormField";
+import PasswordInput from "../../components/auth/PasswordInput";
+import PasswordStrength from "../../components/auth/PasswordStrength";
 import Button from "../../components/common/Button";
 
 const RegisterPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((s) => s.auth);
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading } = useAuth();
+  } = useForm({ defaultValues: { role: "student" } });
 
-  const onSubmit = async (formData) => {
-    const result = await dispatch(registerUser(formData));
+  const password = watch("password", "");
+
+  useEffect(() => {
+    return () => dispatch(clearError());
+  }, [dispatch]);
+
+  const onSubmit = async (data) => {
+    const result = await dispatch(registerUser(data));
     if (registerUser.fulfilled.match(result)) {
-      toast.success("Account created! Welcome to PrepAI.");
+      toast.success("Account created! Check your email to verify.");
       navigate("/dashboard");
     } else {
       toast.error(result.payload || "Registration failed");
@@ -28,74 +39,80 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-6 py-10">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="card w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
-        <p className="mt-1 text-sm text-gray-500">Start your personalized career prep journey.</p>
-
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
-            <input
-              className="input-field"
-              placeholder="John Doe"
-              {...register("name", { required: "Name is required" })}
-            />
-            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+    <AuthCard
+      title="Create your account"
+      subtitle="Start your AI-powered career prep journey."
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+        {/* Server error */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
           </div>
+        )}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              className="input-field"
-              placeholder="you@example.com"
-              {...register("email", { required: "Email is required" })}
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
+        <FormField label="Full Name" error={errors.name?.message}>
+          <input
+            className="input-field"
+            placeholder="John Doe"
+            {...register("name", {
+              required: "Name is required",
+              maxLength: { value: 60, message: "Max 60 characters" },
+            })}
+          />
+        </FormField>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              className="input-field"
-              placeholder="At least 6 characters"
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Minimum 6 characters" },
-              })}
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
-            )}
-          </div>
+        <FormField label="Email address" error={errors.email?.message}>
+          <input
+            type="email"
+            className="input-field"
+            placeholder="you@example.com"
+            {...register("email", {
+              required: "Email is required",
+              pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email" },
+            })}
+          />
+        </FormField>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">I am a</label>
-            <select className="input-field" {...register("role")}>
-              <option value="student">Student</option>
-              <option value="professional">Professional</option>
-            </select>
-          </div>
+        <FormField label="Password" error={errors.password?.message}>
+          <PasswordInput
+            placeholder="Min. 6 characters"
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 6, message: "Minimum 6 characters" },
+              pattern: { value: /\d/, message: "Must contain at least one number" },
+            })}
+          />
+          <PasswordStrength password={password} />
+        </FormField>
 
-          <Button type="submit" loading={loading} className="w-full">
-            Create Account
-          </Button>
-        </form>
+        <FormField label="I am a" error={errors.role?.message}>
+          <select className="input-field" {...register("role")}>
+            <option value="student">Student / Fresher</option>
+            <option value="professional">Working Professional</option>
+          </select>
+        </FormField>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <FormField label="Target Role" error={errors.targetRole?.message}>
+          <input
+            className="input-field"
+            placeholder="e.g. Full Stack Developer"
+            {...register("targetRole")}
+          />
+        </FormField>
+
+        <Button type="submit" loading={loading} className="w-full">
+          Create Account
+        </Button>
+
+        <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-primary-600 hover:underline">
+          <Link to="/login" className="font-semibold text-primary-600 hover:underline">
             Log in
           </Link>
         </p>
-      </motion.div>
-    </div>
+      </form>
+    </AuthCard>
   );
 };
 

@@ -5,15 +5,14 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { MailCheck } from "lucide-react";
-import { forgotPassword, clearError, clearEmailSent } from "../../features/auth/authSlice";
+import { resendVerification, clearError, clearEmailSent } from "../../features/auth/authSlice";
 import AuthCard from "../../components/auth/AuthCard";
 import FormField from "../../components/auth/FormField";
 import Button from "../../components/common/Button";
 
-const ForgotPasswordPage = () => {
+const ResendVerificationPage = () => {
   const dispatch = useDispatch();
   const { loading, error, emailSent } = useSelector((s) => s.auth);
-
   const { register, handleSubmit, getValues, formState: { errors } } = useForm();
 
   useEffect(() => {
@@ -24,16 +23,16 @@ const ForgotPasswordPage = () => {
   }, [dispatch]);
 
   const onSubmit = async (data) => {
-    const result = await dispatch(forgotPassword(data.email));
-    if (forgotPassword.rejected.match(result)) {
+    const result = await dispatch(resendVerification(data.email));
+    if (resendVerification.rejected.match(result)) {
       toast.error(result.payload || "Something went wrong");
     }
   };
 
   return (
     <AuthCard
-      title="Forgot your password?"
-      subtitle="No worries, we'll send you a reset link."
+      title="Resend Verification Email"
+      subtitle="Enter your email and we'll resend the verification link."
     >
       <AnimatePresence mode="wait">
         {emailSent ? (
@@ -46,13 +45,12 @@ const ForgotPasswordPage = () => {
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
               <MailCheck size={26} />
             </div>
-            <h3 className="font-semibold text-gray-900">Check your inbox</h3>
-            <p className="max-w-xs text-sm text-gray-500">
-              If an account exists for{" "}
-              <span className="font-medium text-gray-700">{getValues("email")}</span>, you'll
-              receive a password reset link within a few minutes.
+            <h3 className="font-semibold text-gray-900">Email sent!</h3>
+            <p className="text-sm text-gray-500">
+              A new verification link has been sent to{" "}
+              <span className="font-medium text-gray-700">{getValues("email")}</span>.{" "}
+              The link expires in 24 hours.
             </p>
-            <p className="text-xs text-gray-400">The link expires in 30 minutes.</p>
             <Link to="/login" className="mt-2 text-sm font-medium text-primary-600 hover:underline">
               ← Back to login
             </Link>
@@ -86,7 +84,7 @@ const ForgotPasswordPage = () => {
             </FormField>
 
             <Button type="submit" loading={loading} className="w-full">
-              Send Reset Link
+              Resend Verification Email
             </Button>
 
             <Link
@@ -102,4 +100,4 @@ const ForgotPasswordPage = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default ResendVerificationPage;
