@@ -7,7 +7,6 @@ dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const getGeminiApiKey = () => {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  console.log("GEMINI KEY:", !!apiKey);
 
   if (!apiKey) {
     throw new ApiError(
@@ -22,9 +21,17 @@ const getGeminiApiKey = () => {
 const getGeminiModel = () => {
   const genAI = new GoogleGenerativeAI(getGeminiApiKey());
 
+  // Use model from .env or default to latest Flash model
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
+  console.log("Using Gemini Model:", modelName);
+
   return genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: modelName,
   });
 };
 
-module.exports = { getGeminiApiKey, getGeminiModel };
+module.exports = {
+  getGeminiApiKey,
+  getGeminiModel,
+};

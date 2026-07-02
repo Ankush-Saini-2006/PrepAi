@@ -2,42 +2,58 @@ const { getGeminiModel } = require("../config/gemini");
 const ApiError = require("../utils/ApiError");
 
 const getGeminiErrorBody = (err) => {
-  if (err.response?.data) return err.response.data;
-  if (err.response?.body) return err.response.body;
-  if (err.errorDetails) return err.errorDetails;
-  if (err.details) return err.details;
-  if (err.cause) return err.cause;
+  if (err?.response?.data) return err.response.data;
+  if (err?.response?.body) return err.response.body;
+  if (err?.errorDetails) return err.errorDetails;
+  if (err?.details) return err.details;
+  if (err?.cause) return err.cause;
   return {
-    status: err.status,
-    statusText: err.statusText,
-    message: err.message,
+    status: err?.status,
+    statusText: err?.statusText,
+    message: err?.message,
   };
 };
 
-/**
- * Send a prompt to Gemini and return clean text.
- */
 const generateContent = async (prompt) => {
   try {
+    if (typeof prompt !== "string" || !prompt.trim()) {
+      throw new ApiError(400, "Gemini prompt must be a non-empty string");
+    }
+
     const model = getGeminiModel();
+
     const result = await model.generateContent(prompt);
-    const response = result.response;
+    const response = result?.response;
+
+    if (!response || typeof response.text !== "function") {
+      throw new ApiError(502, "Gemini returned an unexpected response format");
+    }
+
     return response.text();
   } catch (err) {
-    console.error("Gemini API error:", err.message);
-    console.error("Gemini API response body:", JSON.stringify(getGeminiErrorBody(err), null, 2));
-    throw new ApiError(err.status || 502, err.message || "Gemini request failed");
+    const status = err?.status || 502;
+    const message = err?.message || "Gemini request failed";
+
+    console.error("Gemini API error:", message);
+    console.error(
+      "Gemini API response body:",
+      JSON.stringify(getGeminiErrorBody(err), null, 2)
+    );
+
+    throw new ApiError(status, message);
   }
 };
 
-/**
- * Ask Gemini to return strict JSON. Strips markdown fences if present.
- */
 const generateJSON = async (prompt) => {
   const text = await generateContent(
     `${prompt}\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no backticks, no explanation.`
   );
-  const cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();
+
+  const cleaned = (text || "")
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
   try {
     return JSON.parse(cleaned);
   } catch (err) {
@@ -134,3 +150,4 @@ module.exports = {
   evaluateAnswerPrompt,
   generateRoadmapPrompt,
 };
+
