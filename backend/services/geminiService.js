@@ -214,6 +214,57 @@ ${currentMessage}
 `;
 };
 
+const generateStudyPlanPrompt = ({
+  targetCompany,
+  targetRole,
+  currentSkills = [],
+  availableHoursPerDay,
+  deadline,
+  careerGoal,
+}) => `
+You are PrepAI's senior placement preparation planner.
+Create a practical study plan for a student preparing for placements.
+
+Target Company: "${targetCompany || "Not specified"}"
+Target Role: "${targetRole || "Software Engineer"}"
+Career Goal: "${careerGoal || "Placement readiness"}"
+Current Skills: ${currentSkills.join(", ") || "None specified"}
+Available Hours Per Day: ${availableHoursPerDay || 2}
+Deadline: ${deadline}
+
+Return a JSON object with this exact structure:
+{
+  "title": "string",
+  "summary": "string",
+  "dailyGoal": "string",
+  "weeklyGoal": "string",
+  "monthlyGoal": "string",
+  "revisionPlan": ["string", ...],
+  "weeklyMilestones": [
+    {
+      "title": "string",
+      "description": "string",
+      "dueDate": "YYYY-MM-DD"
+    }
+  ],
+  "tasks": [
+    {
+      "title": "string",
+      "description": "string",
+      "category": "DSA|Frontend|Backend|System Design|Core Subjects|SQL|JavaScript|Aptitude|Resume|Projects|Mock Interviews|Company Preparation|Revision|Custom",
+      "priority": "Low|Medium|High|Critical",
+      "dueDate": "YYYY-MM-DD",
+      "estimatedStudyMinutes": 60,
+      "notes": "string",
+      "reminderAt": "YYYY-MM-DDTHH:mm:ss.000Z",
+      "recurring": "None|Daily|Weekly|Monthly"
+    }
+  ]
+}
+
+Generate realistic daily tasks, weekly milestones, revision work, company-specific preparation, DSA practice, aptitude, projects, resume work, and mock interview tasks. Do not hardcode generic filler; tailor the plan to the company, skills, hours, and deadline.
+`;
+
 module.exports = {
   generateContent,
   generateJSON,
@@ -223,4 +274,5 @@ module.exports = {
   evaluateAnswerPrompt,
   generateRoadmapPrompt,
   careerChatPrompt,
+  generateStudyPlanPrompt,
 };

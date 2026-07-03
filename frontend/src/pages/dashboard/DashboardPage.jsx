@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Activity, ArrowRight, BadgeCheck, BrainCircuit, CheckCircle2, Clock3, Flame, LayoutDashboard, Sparkles, Target, TrendingUp } from "lucide-react";
+import { Activity, BadgeCheck, BrainCircuit, CheckCircle2, Clock3, Flame, LayoutDashboard, Sparkles, TrendingUp } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import useFetchDashboardOverview from "../../hooks/useFetchDashboardOverview";
 import DashboardCard from "../../components/dashboard/DashboardCard";
@@ -123,7 +123,7 @@ const DashboardPage = () => {
                     {hasTasks ? (
                       sections.todaysTasks.map((task) => <TaskItem key={task.title} icon={task.icon} title={task.title} detail={task.detail} />)
                     ) : (
-                      <EmptyState title="No tasks available" description="Tasks will appear here when the dashboard has live resume, roadmap, job, or interview data." />
+                      <EmptyState title="No tasks available" description="Tasks will appear here when your smart task manager or other PrepAI activity has live data." />
                     )}
                   </div>
                 </DashboardCard>
@@ -167,6 +167,11 @@ const DashboardPage = () => {
 
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon={LayoutDashboard} title="Applications" value={metrics.totalApplications} loading={loading} emptyLabel="0" description="Tracked across all statuses" accent="from-primary-600 to-violet-600" />
+        <MetricCard icon={CheckCircle2} title="Pending Tasks" value={metrics.pendingTasks} loading={loading} emptyLabel="0" description={metrics.todaysTaskGoal || "Today's goal appears here"} accent="from-violet-500 to-purple-600" />
+        <MetricCard icon={Clock3} title="Study Hours" value={metrics.studyHours} loading={loading} emptyLabel="0" description={metrics.upcomingTaskDeadline ? `Next: ${metrics.upcomingTaskDeadline.title}` : "Tracked completed study time"} accent="from-teal-500 to-emerald-500" />
+        <MetricCard icon={BrainCircuit} title="LeetCode Stats" value={metrics.leetcodeSolved} loading={loading} emptyLabel="0" description="Total solved problems" accent="from-orange-500 to-amber-500" />
+        <MetricCard icon={Activity} title="GitHub Activity" value={metrics.githubActivityScore} loading={loading} emptyLabel="0" description={metrics.codingRecommendation || "Today's recommendation appears after analysis"} accent="from-slate-600 to-gray-800" />
+        <MetricCard icon={BadgeCheck} title="Contest Rating" value={metrics.contestRating} loading={loading} emptyLabel="No data" description="Best available contest rating" accent="from-purple-500 to-fuchsia-600" />
         <MetricCard icon={TrendingUp} title="Roadmap Progress" value={metrics.roadmapProgress} loading={loading} emptyLabel="No data" description={metrics.latestRoadmap ? `Target role: ${metrics.latestRoadmap.targetRole}` : "No roadmap yet"} accent="from-sky-500 to-cyan-500" />
         <MetricCard icon={Clock3} title="Weekly Progress" value={charts.weeklyProgressData.at(-1)?.value ?? null} loading={loading} emptyLabel="No data" description="Current momentum compared to the start of the week" accent="from-amber-500 to-orange-500" />
         <MetricCard icon={CheckCircle2} title="Milestones Done" value={`${metrics.completedMilestones}/${metrics.totalMilestones || 0}`} loading={loading} emptyLabel="0/0" description="Completed roadmap milestones" accent="from-emerald-500 to-green-500" />

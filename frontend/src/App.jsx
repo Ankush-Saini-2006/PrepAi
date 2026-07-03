@@ -26,6 +26,17 @@ import MockInterviewPage from "./pages/interview/MockInterviewPage";
 import JobTrackerPage from "./pages/jobs/JobTrackerPage";
 import RoadmapPage from "./pages/roadmap/RoadmapPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import CareerChatbot from "./pages/CareerChatbot";
+import TaskDashboard from "./pages/tasks/TaskDashboard";
+import TaskCalendar from "./pages/tasks/TaskCalendar";
+import TaskDetails from "./pages/tasks/TaskDetails";
+import AIPlanner from "./pages/tasks/AIPlanner";
+import StudyPlan from "./pages/tasks/StudyPlan";
+import CodingProfile from "./pages/coding/CodingProfile";
+import ProfileOverview from "./pages/coding/ProfileOverview";
+import ProfileAnalytics from "./pages/coding/ProfileAnalytics";
+import CodingInsights from "./pages/coding/CodingInsights";
+import LearningPlan from "./pages/coding/LearningPlan";
 
 function App() {
   const dispatch = useDispatch();
@@ -73,6 +84,17 @@ function App() {
         <Route path="interview" element={<MockInterviewPage />} />
         <Route path="jobs" element={<JobTrackerPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
+        <Route path="career-chatbot" element={<CareerChatbot />} />
+        <Route path="tasks" element={<TaskDashboard />} />
+        <Route path="tasks/calendar" element={<TaskCalendar />} />
+        <Route path="tasks/ai-planner" element={<AIPlanner />} />
+        <Route path="tasks/study-plan" element={<StudyPlan />} />
+        <Route path="tasks/:id" element={<TaskDetails />} />
+        <Route path="coding-profiles" element={<CodingProfile />} />
+        <Route path="coding-profiles/overview" element={<ProfileOverview />} />
+        <Route path="coding-profiles/analytics" element={<ProfileAnalytics />} />
+        <Route path="coding-profiles/insights" element={<CodingInsights />} />
+        <Route path="coding-profiles/learning-plan" element={<LearningPlan />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
@@ -85,6 +107,17 @@ function App() {
         }
       >
         <Route index element={<ResumeJobMatch />} />
+      </Route>
+
+      <Route
+        path="/career-chatbot"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<CareerChatbot />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

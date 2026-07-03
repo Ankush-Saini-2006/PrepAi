@@ -4,6 +4,8 @@ import { fetchJobStats, fetchJobs } from "../features/jobs/jobSlice";
 import { fetchResumes } from "../features/resume/resumeSlice";
 import { fetchRoadmaps } from "../features/roadmap/roadmapSlice";
 import { fetchInterviews } from "../features/interview/interviewSlice";
+import { fetchTaskStats, fetchTasks } from "../redux/slices/taskSlice";
+import { fetchCurrentCodingProfile } from "../redux/slices/codingProfileSlice";
 
 const toDateKey = (value) => {
   const date = value instanceof Date ? value : new Date(value);
@@ -26,6 +28,8 @@ const useFetchDashboardOverview = () => {
   const resumeState = useSelector((state) => state.resume);
   const roadmapState = useSelector((state) => state.roadmap);
   const interviewState = useSelector((state) => state.interview);
+  const taskState = useSelector((state) => state.tasks);
+  const codingState = useSelector((state) => state.codingProfiles);
 
   useEffect(() => {
     dispatch(fetchJobStats());
@@ -33,10 +37,13 @@ const useFetchDashboardOverview = () => {
     dispatch(fetchResumes());
     dispatch(fetchRoadmaps());
     dispatch(fetchInterviews());
+    dispatch(fetchTasks({ view: "today" }));
+    dispatch(fetchTaskStats());
+    dispatch(fetchCurrentCodingProfile());
   }, [dispatch]);
 
   const loading =
-    jobsState.loading || resumeState.loading || roadmapState.loading || interviewState.loading;
+    jobsState.loading || resumeState.loading || roadmapState.loading || interviewState.loading || taskState.loading || codingState.loading;
 
   const latestResume = resumeState.resumes[0] || null;
   const latestRoadmap = roadmapState.roadmaps[0] || null;
@@ -46,7 +53,7 @@ const useFetchDashboardOverview = () => {
 
   const resumeScore = latestResume?.atsScore ?? null;
   const atsScore = latestResume?.atsScore ?? null;
-  const codingScore = latestInterview?.overallScore ?? null;
+  const codingScore = codingState.profile?.scores?.overallCodingScore ?? latestInterview?.overallScore ?? null;
   const roadmapProgress = latestRoadmap?.progress ?? null;
 
   const scoreValues = [resumeScore, atsScore, codingScore, roadmapProgress].filter(
@@ -218,7 +225,10 @@ const useFetchDashboardOverview = () => {
   }, [latestRoadmap]);
 
   const todaysTasks = useMemo(() => {
-    const tasks = [];
+    const tasks = (taskState.stats?.todaysTasks || taskState.tasks || []).map((task) => ({
+      title: task.title,
+      detail: `${task.category || "Task"} - ${task.status || "Pending"} - ${task.estimatedStudyMinutes || 0} min`,
+    }));
 
     if (latestResume?.suggestions?.length) {
       tasks.push({
@@ -249,7 +259,7 @@ const useFetchDashboardOverview = () => {
     }
 
     return tasks;
-  }, [jobsState.jobs.length, latestInterview, latestRoadmap, latestResume]);
+  }, [jobsState.jobs.length, latestInterview, latestRoadmap, latestResume, taskState.stats, taskState.tasks]);
 
   const applicationChartData = useMemo(
     () =>
@@ -275,6 +285,15 @@ const useFetchDashboardOverview = () => {
       roadmapProgress,
       dailyStreak,
       totalApplications: jobsState.stats?.total ?? jobsState.jobs.length,
+      pendingTasks: taskState.stats?.pendingTasks ?? null,
+      taskProgress: taskState.stats?.progress ?? null,
+      studyHours: taskState.stats?.studyHours ?? null,
+      leetcodeSolved: codingState.profile?.leetcode?.totalSolved ?? null,
+      githubActivityScore: codingState.profile?.scores?.githubActivityScore ?? null,
+      contestRating: codingState.profile?.codeforces?.contestRating || codingState.profile?.leetcode?.contestRating || null,
+      codingRecommendation: codingState.analysis?.recommendedTopics?.[0] || "",
+      upcomingTaskDeadline: taskState.stats?.upcomingDeadline ?? null,
+      todaysTaskGoal: taskState.stats?.todaysGoal ?? "",
       completedMilestones: latestRoadmap?.milestones?.filter((milestone) => milestone.isCompleted).length || 0,
       totalMilestones: latestRoadmap?.milestones?.length || 0,
     },
