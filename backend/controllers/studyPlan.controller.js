@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const StudyPlan = require("../models/StudyPlan");
 const Task = require("../models/Task");
+const CompanyTarget = require("../models/CompanyTarget");
 const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
 const { generateJSON, generateStudyPlanPrompt } = require("../services/geminiService");
@@ -44,9 +45,11 @@ const daysBetween = (deadline) => {
 const generateStudyPlan = asyncHandler(async (req, res) => {
   const { targetCompany, targetRole, currentSkills, availableHoursPerDay, deadline, careerGoal } = req.body;
   if (!deadline) throw new ApiError(400, "Deadline is required");
+  const savedTarget = targetCompany ? null : await CompanyTarget.findOne({ user: req.user._id }).lean();
+  const effectiveTargetCompany = targetCompany || savedTarget?.companyName || "";
 
   const prompt = generateStudyPlanPrompt({
-    targetCompany,
+    targetCompany: effectiveTargetCompany,
     targetRole,
     currentSkills: normalizeList(currentSkills),
     availableHoursPerDay,
@@ -57,8 +60,8 @@ const generateStudyPlan = asyncHandler(async (req, res) => {
 
   const plan = await StudyPlan.create({
     user: req.user._id,
-    title: result.title || `${targetCompany || targetRole || "Placement"} Preparation Plan`,
-    targetCompany,
+    title: result.title || `${effectiveTargetCompany || targetRole || "Placement"} Preparation Plan`,
+    targetCompany: effectiveTargetCompany,
     targetRole,
     currentSkills: normalizeList(currentSkills),
     availableHoursPerDay: Number(availableHoursPerDay) || 2,
@@ -91,7 +94,7 @@ const generateStudyPlan = asyncHandler(async (req, res) => {
       notes: task.notes || "",
       reminderAt: normalizeNullableDate(task.reminderAt),
       recurring: validRecurring.has(task.recurring) ? task.recurring : "None",
-      company: targetCompany || "",
+      company: effectiveTargetCompany,
       careerGoal: careerGoal || targetRole || "",
       source: "AI",
     }))

@@ -18,6 +18,7 @@ const chatRoutes     = require("./routes/chat.routes");
 const taskRoutes     = require("./routes/task.routes");
 const studyPlanRoutes = require("./routes/studyPlan.routes");
 const codingProfileRoutes = require("./routes/codingProfile.routes");
+const companyRoutes = require("./routes/company.routes");
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use("/api/chat",       chatRoutes);
 app.use("/api/tasks",      taskRoutes);
 app.use("/api/study-plans", studyPlanRoutes);
 app.use("/api/coding-profiles", codingProfileRoutes);
+app.use("/api/company-prep", companyRoutes);
 
 // ─── Error handling ────────────────────────────────────────────────────────
 app.use(notFound);

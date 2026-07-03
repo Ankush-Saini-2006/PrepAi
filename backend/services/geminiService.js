@@ -240,6 +240,37 @@ Return a JSON object with this exact structure:
 Generate realistic daily tasks, weekly milestones, revision work, company-specific preparation, DSA practice, aptitude, projects, and resume work. Do not hardcode generic filler; tailor the plan to the company, skills, hours, and deadline.
 `;
 
+const generateCompanyPreparationPrompt = (companyName) => `
+You are PrepAI's senior company preparation strategist.
+Generate complete placement preparation content for "${companyName}".
+
+Return a JSON object with this exact structure:
+{
+  "overview": "string",
+  "hiringProcess": ["string", ...],
+  "eligibility": ["string", ...],
+  "interviewPattern": "string",
+  "oaPattern": "string",
+  "interviewRounds": ["string", ...],
+  "frequentlyAskedQuestions": ["string", ...],
+  "mostAskedDsaTopics": [
+    { "name": "string", "difficulty": "Easy|Medium|Hard", "recommendedQuestions": ["string", ...] }
+  ],
+  "coreCsSubjects": ["string", ...],
+  "resumeTips": ["string", ...],
+  "projectsExpected": ["string", ...],
+  "behavioralQuestions": ["string", ...],
+  "hrQuestions": ["string", ...],
+  "systemDesign": ["string", ...],
+  "codingLanguagesPreferred": ["string", ...],
+  "resources": [
+    { "type": "YouTube Playlist|Article|Official Documentation|Practice Link|Book", "title": "string", "url": "string", "description": "string" }
+  ]
+}
+
+Keep content practical and company-specific. If exact details vary by role, say so clearly in the content.
+`;
+
 module.exports = {
   generateContent,
   generateJSON,
@@ -248,4 +279,5 @@ module.exports = {
   generateRoadmapPrompt,
   careerChatPrompt,
   generateStudyPlanPrompt,
+  generateCompanyPreparationPrompt,
 };

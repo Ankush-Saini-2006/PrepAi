@@ -19,6 +19,7 @@ const roadmapSchema = new mongoose.Schema(
       required: true,
     },
     targetRole: { type: String, required: true },
+    targetCompany: { type: String, default: "", trim: true },
     currentLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],

@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Roadmap = require("../models/Roadmap");
+const CompanyTarget = require("../models/CompanyTarget");
 const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
 const { generateJSON, generateRoadmapPrompt } = require("../services/geminiService");
@@ -8,13 +9,16 @@ const { generateJSON, generateRoadmapPrompt } = require("../services/geminiServi
 // @route   POST /api/roadmaps/generate
 const generateRoadmap = asyncHandler(async (req, res) => {
   const { targetRole, currentLevel, skills } = req.body;
+  const target = await CompanyTarget.findOne({ user: req.user._id }).lean();
 
-  const prompt = generateRoadmapPrompt(targetRole, currentLevel, skills || []);
+  const roleContext = target?.companyName ? `${targetRole} at ${target.companyName}` : targetRole;
+  const prompt = generateRoadmapPrompt(roleContext, currentLevel, skills || []);
   const result = await generateJSON(prompt);
 
   const roadmap = await Roadmap.create({
     user: req.user._id,
     targetRole,
+    targetCompany: target?.companyName || "",
     currentLevel: currentLevel || "beginner",
     estimatedWeeks: result.estimatedWeeks || 12,
     milestones: (result.milestones || []).map((m) => ({

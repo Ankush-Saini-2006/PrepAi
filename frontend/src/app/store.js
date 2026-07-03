@@ -7,6 +7,7 @@ import resumeJobMatchReducer from "../redux/slices/resumeJobMatchSlice";
 import chatReducer from "../redux/slices/chatSlice";
 import taskReducer from "../redux/slices/taskSlice";
 import codingProfileReducer from "../redux/slices/codingProfileSlice";
+import companyPreparationReducer from "../redux/slices/companyPreparationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     chat: chatReducer,
     tasks: taskReducer,
     codingProfiles: codingProfileReducer,
+    companyPrep: companyPreparationReducer,
   },
   devTools: import.meta.env.MODE !== "production",
 });

@@ -36,6 +36,10 @@ import ProfileOverview from "./pages/coding/ProfileOverview";
 import ProfileAnalytics from "./pages/coding/ProfileAnalytics";
 import CodingInsights from "./pages/coding/CodingInsights";
 import LearningPlan from "./pages/coding/LearningPlan";
+import CompanyList from "./pages/company/CompanyList";
+import CompanyDetails from "./pages/company/CompanyDetails";
+import CompanyRoadmap from "./pages/company/Roadmap";
+import CompanyResources from "./pages/company/Resources";
 
 function App() {
   const dispatch = useDispatch();
@@ -93,6 +97,10 @@ function App() {
         <Route path="coding-profiles/analytics" element={<ProfileAnalytics />} />
         <Route path="coding-profiles/insights" element={<CodingInsights />} />
         <Route path="coding-profiles/learning-plan" element={<LearningPlan />} />
+        <Route path="company-prep" element={<CompanyList />} />
+        <Route path="company-prep/:slug" element={<CompanyDetails />} />
+        <Route path="company-prep/:slug/roadmap" element={<CompanyRoadmap />} />
+        <Route path="company-prep/:slug/resources" element={<CompanyResources />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
