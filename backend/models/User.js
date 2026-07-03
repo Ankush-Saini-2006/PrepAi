@@ -35,6 +35,45 @@ const userSchema = new mongoose.Schema(
     },
     targetRole: { type: String, default: "" },
     skills: [{ type: String }],
+    careerGoals: [{ type: String }],
+    profileResume: {
+      url: { type: String, default: "" },
+      publicId: { type: String, default: "" },
+      originalName: { type: String, default: "" },
+      uploadedAt: { type: Date, default: null },
+    },
+    projects: [
+      {
+        title: { type: String, required: true, trim: true },
+        description: { type: String, default: "", trim: true },
+        techStack: [{ type: String }],
+        link: { type: String, default: "", trim: true },
+        githubUrl: { type: String, default: "", trim: true },
+      },
+    ],
+    certificates: [
+      {
+        title: { type: String, required: true, trim: true },
+        issuer: { type: String, default: "", trim: true },
+        credentialUrl: { type: String, default: "", trim: true },
+        issuedAt: { type: Date, default: null },
+      },
+    ],
+    codingProfiles: {
+      leetcode: { type: String, default: "", trim: true },
+      github: { type: String, default: "", trim: true },
+      codeforces: { type: String, default: "", trim: true },
+      codechef: { type: String, default: "", trim: true },
+      geeksforgeeks: { type: String, default: "", trim: true },
+      hackerrank: { type: String, default: "", trim: true },
+    },
+    achievements: [
+      {
+        title: { type: String, required: true, trim: true },
+        description: { type: String, default: "", trim: true },
+        date: { type: Date, default: null },
+      },
+    ],
 
     // Email verification
     isVerified: { type: Boolean, default: false },

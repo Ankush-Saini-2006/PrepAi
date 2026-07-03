@@ -43,6 +43,11 @@ const updateProfileValidator = [
   body("targetRole").optional().trim().isLength({ max: 100 }),
   body("role").optional().isIn(["student", "professional"]).withMessage("Invalid role"),
   body("skills").optional(),
+  body("careerGoals").optional().isArray().withMessage("Career goals must be an array"),
+  body("projects").optional().isArray().withMessage("Projects must be an array"),
+  body("certificates").optional().isArray().withMessage("Certificates must be an array"),
+  body("achievements").optional().isArray().withMessage("Achievements must be an array"),
+  body("codingProfiles").optional().isObject().withMessage("Coding profiles must be an object"),
 ];
 
 const changePasswordValidator = [

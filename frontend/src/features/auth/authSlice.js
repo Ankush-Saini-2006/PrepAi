@@ -154,6 +154,34 @@ export const uploadAvatar = createAsyncThunk(
   }
 );
 
+export const uploadProfileResume = createAsyncThunk(
+  "auth/uploadProfileResume",
+  async (file, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+      const { data } = await axiosInstance.put("/users/resume", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Resume upload failed");
+    }
+  }
+);
+
+export const deleteProfileResume = createAsyncThunk(
+  "auth/deleteProfileResume",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.delete("/users/resume");
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Resume delete failed");
+    }
+  }
+);
+
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 const setAuthState = (state, user, accessToken) => {
@@ -322,6 +350,21 @@ const authSlice = createSlice({
         state.user = action.payload.user;
       })
       .addCase(uploadAvatar.rejected, rejectedCase);
+
+    // Profile Resume
+    builder
+      .addCase(uploadProfileResume.pending, (state) => { state.loading = true; })
+      .addCase(uploadProfileResume.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(uploadProfileResume.rejected, rejectedCase)
+      .addCase(deleteProfileResume.pending, (state) => { state.loading = true; })
+      .addCase(deleteProfileResume.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(deleteProfileResume.rejected, rejectedCase);
   },
 });
 

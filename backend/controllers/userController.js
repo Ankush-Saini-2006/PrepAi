@@ -5,10 +5,65 @@ const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
 const { uploadToCloudinary, deleteFromCloudinary } = require("../services/cloudinaryService");
 
+const normalizeList = (value) => {
+  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
+  if (typeof value === "string") return value.split(",").map((item) => item.trim()).filter(Boolean);
+  return [];
+};
+
+const normalizeDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const normalizeProjects = (projects = []) =>
+  (Array.isArray(projects) ? projects : []).map((project) => ({
+    title: String(project.title || "").trim(),
+    description: String(project.description || "").trim(),
+    techStack: normalizeList(project.techStack),
+    link: String(project.link || "").trim(),
+    githubUrl: String(project.githubUrl || "").trim(),
+  })).filter((project) => project.title);
+
+const normalizeCertificates = (certificates = []) =>
+  (Array.isArray(certificates) ? certificates : []).map((certificate) => ({
+    title: String(certificate.title || "").trim(),
+    issuer: String(certificate.issuer || "").trim(),
+    credentialUrl: String(certificate.credentialUrl || "").trim(),
+    issuedAt: normalizeDate(certificate.issuedAt),
+  })).filter((certificate) => certificate.title);
+
+const normalizeAchievements = (achievements = []) =>
+  (Array.isArray(achievements) ? achievements : []).map((achievement) => ({
+    title: String(achievement.title || "").trim(),
+    description: String(achievement.description || "").trim(),
+    date: normalizeDate(achievement.date),
+  })).filter((achievement) => achievement.title);
+
+const normalizeCodingProfiles = (profiles = {}) => ({
+  leetcode: String(profiles.leetcode || "").trim(),
+  github: String(profiles.github || "").trim(),
+  codeforces: String(profiles.codeforces || "").trim(),
+  codechef: String(profiles.codechef || "").trim(),
+  geeksforgeeks: String(profiles.geeksforgeeks || "").trim(),
+  hackerrank: String(profiles.hackerrank || "").trim(),
+});
+
 // @desc    Update profile
 // @route   PUT /api/users/profile
 const updateProfile = asyncHandler(async (req, res) => {
-  const { name, targetRole, skills, role } = req.body;
+  const {
+    achievements,
+    careerGoals,
+    certificates,
+    codingProfiles,
+    name,
+    projects,
+    targetRole,
+    skills,
+    role,
+  } = req.body;
 
   const user = await User.findById(req.user._id);
   if (!user) throw new ApiError(404, "User not found");
@@ -21,9 +76,61 @@ const updateProfile = asyncHandler(async (req, res) => {
       ? skills
       : skills.split(",").map((s) => s.trim()).filter(Boolean);
   }
+  if (careerGoals !== undefined) user.careerGoals = normalizeList(careerGoals);
+  if (projects !== undefined) user.projects = normalizeProjects(projects);
+  if (certificates !== undefined) user.certificates = normalizeCertificates(certificates);
+  if (codingProfiles !== undefined) user.codingProfiles = normalizeCodingProfiles(codingProfiles);
+  if (achievements !== undefined) user.achievements = normalizeAchievements(achievements);
 
   await user.save();
   res.status(200).json(new ApiResponse(200, { user: user.toSafeObject() }, "Profile updated"));
+});
+
+// @desc    Upload / replace profile resume
+// @route   PUT /api/users/resume
+const updateProfileResume = asyncHandler(async (req, res) => {
+  if (!req.file) throw new ApiError(400, "No resume file uploaded");
+
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.profileResume?.publicId) {
+    await deleteFromCloudinary(user.profileResume.publicId);
+  }
+
+  const { url, publicId } = await uploadToCloudinary(req.file.path, "prepai/profile-resumes");
+  user.profileResume = {
+    url,
+    publicId,
+    originalName: req.file.originalname,
+    uploadedAt: new Date(),
+  };
+  await user.save();
+
+  res.status(200).json(new ApiResponse(200, { user: user.toSafeObject() }, "Resume uploaded"));
+});
+
+// @desc    Download profile resume
+// @route   GET /api/users/resume/download
+const downloadProfileResume = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user?.profileResume?.url) throw new ApiError(404, "No resume uploaded");
+  res.redirect(user.profileResume.url);
+});
+
+// @desc    Delete profile resume
+// @route   DELETE /api/users/resume
+const deleteProfileResume = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.profileResume?.publicId) {
+    await deleteFromCloudinary(user.profileResume.publicId);
+  }
+
+  user.profileResume = { url: "", publicId: "", originalName: "", uploadedAt: null };
+  await user.save();
+  res.status(200).json(new ApiResponse(200, { user: user.toSafeObject() }, "Resume removed"));
 });
 
 // @desc    Upload / update avatar
@@ -65,4 +172,11 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "Password changed successfully. Please log in again."));
 });
 
-module.exports = { updateProfile, updateAvatar, changePassword };
+module.exports = {
+  updateProfile,
+  updateAvatar,
+  updateProfileResume,
+  downloadProfileResume,
+  deleteProfileResume,
+  changePassword,
+};
