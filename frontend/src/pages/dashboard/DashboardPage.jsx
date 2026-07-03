@@ -158,7 +158,7 @@ const DashboardPage = () => {
               value={metrics.codingScore}
               loading={loading}
               emptyLabel="No data"
-              description={metrics.latestInterview ? "Calculated from your interview performance." : "No interview score available yet."}
+              description="Calculated from your connected coding profiles."
               accent="from-emerald-500 to-teal-500"
             />
           </div>
@@ -223,7 +223,7 @@ const DashboardPage = () => {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <EmptyState title="No skill growth data" description="Skill growth will appear once resume, roadmap, or interview scores are synced." />
+              <EmptyState title="No skill growth data" description="Skill growth will appear once resume, roadmap, or coding profile scores are synced." />
             )}
           </DashboardCard>
         </motion.div>

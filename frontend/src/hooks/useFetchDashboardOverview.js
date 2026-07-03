@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchJobStats, fetchJobs } from "../features/jobs/jobSlice";
 import { fetchResumes } from "../features/resume/resumeSlice";
 import { fetchRoadmaps } from "../features/roadmap/roadmapSlice";
-import { fetchInterviews } from "../features/interview/interviewSlice";
 import { fetchTaskStats, fetchTasks } from "../redux/slices/taskSlice";
 import { fetchCurrentCodingProfile } from "../redux/slices/codingProfileSlice";
 
@@ -27,7 +26,6 @@ const useFetchDashboardOverview = () => {
   const jobsState = useSelector((state) => state.jobs);
   const resumeState = useSelector((state) => state.resume);
   const roadmapState = useSelector((state) => state.roadmap);
-  const interviewState = useSelector((state) => state.interview);
   const taskState = useSelector((state) => state.tasks);
   const codingState = useSelector((state) => state.codingProfiles);
 
@@ -36,24 +34,21 @@ const useFetchDashboardOverview = () => {
     dispatch(fetchJobs());
     dispatch(fetchResumes());
     dispatch(fetchRoadmaps());
-    dispatch(fetchInterviews());
     dispatch(fetchTasks({ view: "today" }));
     dispatch(fetchTaskStats());
     dispatch(fetchCurrentCodingProfile());
   }, [dispatch]);
 
   const loading =
-    jobsState.loading || resumeState.loading || roadmapState.loading || interviewState.loading || taskState.loading || codingState.loading;
+    jobsState.loading || resumeState.loading || roadmapState.loading || taskState.loading || codingState.loading;
 
   const latestResume = resumeState.resumes[0] || null;
   const latestRoadmap = roadmapState.roadmaps[0] || null;
-  const latestInterview = interviewState.interviews.find((interview) => interview.status === "completed") ||
-    interviewState.interviews[0] || null;
   const latestJob = jobsState.jobs[0] || null;
 
   const resumeScore = latestResume?.atsScore ?? null;
   const atsScore = latestResume?.atsScore ?? null;
-  const codingScore = codingState.profile?.scores?.overallCodingScore ?? latestInterview?.overallScore ?? null;
+  const codingScore = codingState.profile?.scores?.overallCodingScore ?? null;
   const roadmapProgress = latestRoadmap?.progress ?? null;
 
   const scoreValues = [resumeScore, atsScore, codingScore, roadmapProgress].filter(
@@ -68,44 +63,26 @@ const useFetchDashboardOverview = () => {
 
     jobsState.jobs.forEach((job) => {
       if (job.createdAt || job.appliedDate) {
-        items.push({
-          date: new Date(job.createdAt || job.appliedDate),
-          type: "job",
-        });
+        items.push({ date: new Date(job.createdAt || job.appliedDate), type: "job" });
       }
     });
 
     resumeState.resumes.forEach((resume) => {
       if (resume.analyzedAt || resume.updatedAt || resume.createdAt) {
-        items.push({
-          date: new Date(resume.analyzedAt || resume.updatedAt || resume.createdAt),
-          type: "resume",
-        });
+        items.push({ date: new Date(resume.analyzedAt || resume.updatedAt || resume.createdAt), type: "resume" });
       }
     });
 
     roadmapState.roadmaps.forEach((roadmap) => {
       if (roadmap.updatedAt || roadmap.createdAt) {
-        items.push({
-          date: new Date(roadmap.updatedAt || roadmap.createdAt),
-          type: "roadmap",
-        });
-      }
-    });
-
-    interviewState.interviews.forEach((interview) => {
-      if (interview.updatedAt || interview.createdAt) {
-        items.push({
-          date: new Date(interview.updatedAt || interview.createdAt),
-          type: "interview",
-        });
+        items.push({ date: new Date(roadmap.updatedAt || roadmap.createdAt), type: "roadmap" });
       }
     });
 
     return items
       .filter((item) => !Number.isNaN(item.date.getTime()))
       .sort((left, right) => right.date.getTime() - left.date.getTime());
-  }, [jobsState.jobs, resumeState.resumes, roadmapState.roadmaps, interviewState.interviews]);
+  }, [jobsState.jobs, resumeState.resumes, roadmapState.roadmaps]);
 
   const dailyStreak = useMemo(() => {
     if (activityEvents.length === 0) return null;
@@ -176,27 +153,20 @@ const useFetchDashboardOverview = () => {
         );
         return {
           title: job ? `Tracked ${job.role} at ${job.company}` : "Tracked a job application",
-          detail: job ? `${job.status} · ${event.date.toLocaleDateString()}` : event.date.toLocaleDateString(),
+          detail: job ? `${job.status} - ${event.date.toLocaleDateString()}` : event.date.toLocaleDateString(),
         };
       }
 
       if (event.type === "resume") {
         return {
           title: `Resume updated${latestResume?.targetRole ? ` for ${latestResume.targetRole}` : ""}`,
-          detail: `${resumeScore ?? "No score"} ATS score · ${event.date.toLocaleDateString()}`,
-        };
-      }
-
-      if (event.type === "roadmap") {
-        return {
-          title: `Roadmap refreshed${latestRoadmap?.targetRole ? ` for ${latestRoadmap.targetRole}` : ""}`,
-          detail: `${roadmapProgress ?? "No progress"}% progress · ${event.date.toLocaleDateString()}`,
+          detail: `${resumeScore ?? "No score"} ATS score - ${event.date.toLocaleDateString()}`,
         };
       }
 
       return {
-        title: `Interview ${latestInterview?.status === "completed" ? "completed" : "updated"}`,
-        detail: `${codingScore ?? "No score"} score · ${event.date.toLocaleDateString()}`,
+        title: `Roadmap refreshed${latestRoadmap?.targetRole ? ` for ${latestRoadmap.targetRole}` : ""}`,
+        detail: `${roadmapProgress ?? "No progress"}% progress - ${event.date.toLocaleDateString()}`,
       };
     });
 
@@ -208,7 +178,7 @@ const useFetchDashboardOverview = () => {
             detail: "Complete a prep task, upload a resume, or track your first application to populate this section.",
           },
         ];
-  }, [activityEvents, jobsState.jobs, latestInterview, latestRoadmap, latestResume, resumeScore, roadmapProgress, codingScore]);
+  }, [activityEvents, jobsState.jobs, latestRoadmap, latestResume, resumeScore, roadmapProgress]);
 
   const upcomingGoals = useMemo(() => {
     const pendingMilestones = latestRoadmap?.milestones?.filter((milestone) => !milestone.isCompleted) || [];
@@ -237,13 +207,6 @@ const useFetchDashboardOverview = () => {
       });
     }
 
-    if (latestInterview?.status !== "completed") {
-      tasks.push({
-        title: "Practice one interview",
-        detail: "Use your latest interview session to keep the coding score moving.",
-      });
-    }
-
     if (latestRoadmap?.milestones?.some((milestone) => !milestone.isCompleted)) {
       tasks.push({
         title: "Complete the next milestone",
@@ -259,7 +222,7 @@ const useFetchDashboardOverview = () => {
     }
 
     return tasks;
-  }, [jobsState.jobs.length, latestInterview, latestRoadmap, latestResume, taskState.stats, taskState.tasks]);
+  }, [jobsState.jobs.length, latestRoadmap, latestResume, taskState.stats, taskState.tasks]);
 
   const applicationChartData = useMemo(
     () =>
@@ -275,7 +238,6 @@ const useFetchDashboardOverview = () => {
     stats: jobsState.stats,
     latestResume,
     latestRoadmap,
-    latestInterview,
     latestJob,
     metrics: {
       careerReadinessScore,

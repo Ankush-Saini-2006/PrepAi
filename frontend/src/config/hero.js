@@ -6,7 +6,7 @@ export const HERO_CONFIG = {
     highlight: "career step with AI",
   },
   description:
-    "A focused workspace for resume review, interview practice, role research, and guided learning without clutter or inflated claims.",
+    "A focused workspace for resume review, coding insights, role research, and guided learning without clutter or inflated claims.",
   primaryCta: { label: "Create account", to: "/register" },
   secondaryCta: { label: "Sign in", to: "/login" },
 };
@@ -20,7 +20,7 @@ export const HOW_IT_WORKS_CONFIG = {
     {
       title: "Add your context",
       description:
-        "Connect resume, goals, target companies, and interview preferences from authenticated product flows.",
+        "Connect resume, goals, target companies, and coding profiles from authenticated product flows.",
     },
     {
       title: "Review AI guidance",
@@ -69,7 +69,7 @@ export const PRODUCT_PREVIEWS_CONFIG = {
       state: "empty",
       placeholderTitle: "No company prep data available",
       placeholderDescription: "Save a company or role to build a preparation view.",
-      rows: ["Role context", "Company notes", "Interview focus"],
+      rows: ["Role context", "Company notes", "Preparation focus"],
     },
     {
       id: "learning-hub",
@@ -95,7 +95,7 @@ export const TESTIMONIALS_CONFIG = {
 export const CTA_CONFIG = {
   title: "Start with your own preparation data",
   description:
-    "Create an account or sign in to use PrepAI with authenticated resume, interview, job, and learning workflows.",
+    "Create an account or sign in to use PrepAI with authenticated resume, coding, job, and learning workflows.",
   primaryCta: { label: "Create account", to: "/register" },
   secondaryCta: { label: "Sign in", to: "/login" },
 };
@@ -103,14 +103,14 @@ export const CTA_CONFIG = {
 export const FOOTER_CONFIG = {
   brand: {
     name: "PrepAI",
-    description: "AI career preparation workspace for resume, interview, job, and learning workflows.",
+    description: "AI career preparation workspace for resume, coding, job, and learning workflows.",
   },
   groups: [
     {
       title: "Product",
       links: [
         { label: "Resume Analyzer", href: "/dashboard/resume" },
-        { label: "Mock Interview", href: "/dashboard/interview" },
+        { label: "Coding Analyzer", href: "/dashboard/coding-profiles" },
         { label: "Job Tracker", href: "/dashboard/jobs" },
         { label: "Roadmap", href: "/dashboard/roadmap" },
       ],

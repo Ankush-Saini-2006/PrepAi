@@ -11,7 +11,6 @@ const TASK_CATEGORIES = [
   "Aptitude",
   "Resume",
   "Projects",
-  "Mock Interviews",
   "Company Preparation",
   "Revision",
   "Custom",

@@ -1,10 +1,10 @@
-import { BriefcaseBusiness, FileText, MessageSquareText, Target } from "lucide-react";
+import { BriefcaseBusiness, Code2, FileText, Target } from "lucide-react";
 import { motion } from "framer-motion";
 
 const icons = {
   BriefcaseBusiness,
+  Code2,
   FileText,
-  MessageSquareText,
   Target,
 };
 

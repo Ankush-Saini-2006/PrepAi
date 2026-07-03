@@ -126,31 +126,6 @@ Return a JSON object with this exact structure:
 Evaluate only from the supplied resume and job description. Keep all lists concise, specific, and job-relevant.
 `;
 
-const generateInterviewQuestionsPrompt = (role, type, difficulty, count = 5) => `
-You are a senior technical interviewer at a top tech company.
-Generate ${count} interview questions for the role "${role}".
-Interview type: ${type}.
-Difficulty: ${difficulty}.
-
-Return a JSON array of objects with this exact structure:
-[
-  { "question": "string" }
-]
-`;
-
-const evaluateAnswerPrompt = (question, answer, role) => `
-You are a senior interviewer evaluating a candidate for the role "${role}".
-
-Question: "${question}"
-Candidate Answer: "${answer}"
-
-Return a JSON object with this exact structure:
-{
-  "score": <number 0-10>,
-  "feedback": "<concise constructive feedback, 2-4 sentences>"
-}
-`;
-
 const generateRoadmapPrompt = (targetRole, currentLevel, skills = []) => `
 You are a career mentor creating a learning roadmap.
 Target Role: "${targetRole}"
@@ -251,7 +226,7 @@ Return a JSON object with this exact structure:
     {
       "title": "string",
       "description": "string",
-      "category": "DSA|Frontend|Backend|System Design|Core Subjects|SQL|JavaScript|Aptitude|Resume|Projects|Mock Interviews|Company Preparation|Revision|Custom",
+      "category": "DSA|Frontend|Backend|System Design|Core Subjects|SQL|JavaScript|Aptitude|Resume|Projects|Company Preparation|Revision|Custom",
       "priority": "Low|Medium|High|Critical",
       "dueDate": "YYYY-MM-DD",
       "estimatedStudyMinutes": 60,
@@ -262,7 +237,7 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Generate realistic daily tasks, weekly milestones, revision work, company-specific preparation, DSA practice, aptitude, projects, resume work, and mock interview tasks. Do not hardcode generic filler; tailor the plan to the company, skills, hours, and deadline.
+Generate realistic daily tasks, weekly milestones, revision work, company-specific preparation, DSA practice, aptitude, projects, and resume work. Do not hardcode generic filler; tailor the plan to the company, skills, hours, and deadline.
 `;
 
 module.exports = {
@@ -270,8 +245,6 @@ module.exports = {
   generateJSON,
   analyzeResumePrompt,
   matchResumeToJobDescriptionPrompt,
-  generateInterviewQuestionsPrompt,
-  evaluateAnswerPrompt,
   generateRoadmapPrompt,
   careerChatPrompt,
   generateStudyPlanPrompt,

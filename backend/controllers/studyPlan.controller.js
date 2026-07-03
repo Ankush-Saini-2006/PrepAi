@@ -17,7 +17,6 @@ const validCategories = new Set([
   "Aptitude",
   "Resume",
   "Projects",
-  "Mock Interviews",
   "Company Preparation",
   "Revision",
   "Custom",

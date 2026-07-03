@@ -22,7 +22,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import ResumeAnalyzerPage from "./pages/resume/ResumeAnalyzerPage";
 import ResumeJobMatch from "./pages/ResumeJobMatch";
-import MockInterviewPage from "./pages/interview/MockInterviewPage";
 import JobTrackerPage from "./pages/jobs/JobTrackerPage";
 import RoadmapPage from "./pages/roadmap/RoadmapPage";
 import ProfilePage from "./pages/profile/ProfilePage";
@@ -81,7 +80,6 @@ function App() {
         <Route index element={<DashboardPage />} />
         <Route path="resume" element={<ResumeAnalyzerPage />} />
         <Route path="resume-job-match" element={<ResumeJobMatch />} />
-        <Route path="interview" element={<MockInterviewPage />} />
         <Route path="jobs" element={<JobTrackerPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
         <Route path="career-chatbot" element={<CareerChatbot />} />

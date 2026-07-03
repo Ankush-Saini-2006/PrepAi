@@ -1,88 +1,57 @@
-# PrepAI – AI Career & Placement Coach
+# PrepAI - AI Career & Placement Coach
 
-A production-ready MERN stack application that helps students and professionals prepare for placements with AI-powered resume analysis, mock interviews, job application tracking, and personalized career roadmaps.
+A production-ready MERN stack application that helps students and professionals prepare for placements with AI-powered resume analysis, coding profile insights, job application tracking, smart task planning, and personalized career roadmaps.
 
 ## Tech Stack
 
-**Frontend:** React (Vite), Tailwind CSS, React Router, Redux Toolkit, Axios, React Hook Form, Framer Motion, Monaco Editor, Recharts, React Hot Toast
+**Frontend:** React (Vite), Tailwind CSS, React Router, Redux Toolkit, Axios, React Hook Form, Framer Motion, Recharts, React Hot Toast
 
 **Backend:** Node.js, Express.js, MongoDB, Mongoose, JWT, Bcrypt, Multer, Cloudinary, Nodemailer, Helmet, Morgan, dotenv
 
 **AI:** Google Gemini API, pdf-parse
 
-> No TypeScript. No Firebase/Supabase. No Admin Panel.
-
 ## Folder Structure
 
-```
+```text
 prepai/
-├── backend/
-│   ├── config/          # db, cloudinary, gemini, mailer configs
-│   ├── controllers/     # route handler logic
-│   ├── models/          # Mongoose schemas (User, Resume, Interview, JobApplication, Roadmap)
-│   ├── routes/          # Express routers
-│   ├── middleware/      # auth, error handling, multer upload, validation
-│   ├── services/        # geminiService, pdfService, cloudinaryService
-│   ├── utils/           # ApiError, ApiResponse, generateToken, sendEmail
-│   ├── uploads/         # temp local storage before Cloudinary upload
-│   ├── app.js
-│   ├── server.js
-│   └── .env.example
-│
-└── frontend/
-    ├── src/
-    │   ├── app/store.js         # Redux Toolkit store
-    │   ├── features/            # auth, resume, interview, jobs, roadmap slices
-    │   ├── components/
-    │   │   ├── common/          # Button, Spinner, EmptyState
-    │   │   └── layout/          # Navbar, Sidebar, DashboardLayout, PublicLayout
-    │   ├── pages/                # Landing, auth, dashboard, resume, interview, jobs, roadmap, profile
-    │   ├── routes/ProtectedRoute.jsx
-    │   ├── hooks/useAuth.js
-    │   ├── utils/axiosInstance.js
-    │   ├── App.jsx
-    │   └── main.jsx
-    └── .env.example
+  backend/
+    config/
+    controllers/
+    models/
+    routes/
+    middleware/
+    services/
+    utils/
+    uploads/
+    app.js
+    server.js
+  frontend/
+    src/
+      app/
+      components/
+      config/
+      features/
+      hooks/
+      pages/
+      redux/
+      routes/
+      services/
+      utils/
+      App.jsx
+      main.jsx
 ```
-
-## Getting Started
-
-### 1. Backend Setup
-
-```bash
-cd backend
-cp .env.example .env   # fill in MongoDB URI, JWT secret, Cloudinary, Gemini, SMTP keys
-npm install
-npm run dev             # starts on http://localhost:5000
-```
-
-### 2. Frontend Setup
-
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev              # starts on http://localhost:5173
-```
-
-## Environment Variables
-
-See `backend/.env.example` and `frontend/.env.example` for the full list of required variables, including:
-
-- `MONGO_URI`, `JWT_SECRET`
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- `GEMINI_API_KEY`, `GEMINI_MODEL`
-- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (Nodemailer)
-- `VITE_API_BASE_URL` (frontend)
 
 ## Core Features
 
 - **Auth:** JWT-based register/login/logout, forgot/reset password via email, protected routes.
-- **Resume Analyzer:** Upload PDF resume → extract text (`pdf-parse`) → store on Cloudinary → AI-generated ATS score, strengths, weaknesses, suggestions, missing keywords (Gemini).
-- **Mock Interview:** AI-generated technical/HR/coding questions, per-question AI feedback & scoring, Monaco Editor for coding answers, overall performance summary.
-- **Job Tracker:** CRUD job applications with status pipeline (saved → applied → interviewing → offer/rejected) and stats for dashboard charts.
-- **Career Roadmap:** AI-generated milestone-based learning roadmap tailored to target role, current level, and skills; track progress by toggling milestones.
-- **Dashboard:** Recharts-powered overview of application stats, latest ATS score, and roadmap progress.
+- **Resume Analyzer:** Upload PDF resumes, parse with `pdf-parse`, store uploads, and generate Gemini feedback.
+- **Resume vs Job Description Matching:** Compare a resume PDF with a pasted job description and save structured match history.
+- **AI Career Chatbot:** Career, coding, resume, roadmap, company, aptitude, and placement guidance powered by Gemini.
+- **AI Smart Task Manager:** Manual and Gemini-generated preparation tasks, calendars, study plans, reminders, and progress charts.
+- **AI Coding Profile Analyzer:** Connect LeetCode, GitHub, and Codeforces profiles, cache public data, and generate AI readiness insights.
+- **Job Tracker:** CRUD job applications with status pipeline and dashboard stats.
+- **Career Roadmap:** AI-generated milestone-based learning roadmap tailored to target role, current level, and skills.
+- **Dashboard:** Recharts-powered overview of preparation, applications, tasks, coding scores, and roadmap progress.
 
 ## API Overview
 
@@ -93,15 +62,18 @@ See `backend/.env.example` and `frontend/.env.example` for the full list of requ
 | GET | `/api/auth/me` | Get current user |
 | POST | `/api/resumes/upload` | Upload resume PDF |
 | POST | `/api/resumes/:id/analyze` | AI analyze resume |
-| POST | `/api/interviews/start` | Start AI mock interview |
-| POST | `/api/interviews/:id/answer` | Submit answer for AI feedback |
+| POST | `/api/resume-job-match/analyze` | Compare resume with a job description |
+| POST | `/api/chat` | Send a career chatbot message |
+| POST | `/api/tasks` | Create a smart task |
+| POST | `/api/study-plans/generate` | Generate an AI study plan |
+| POST | `/api/coding-profiles/connect` | Connect and analyze coding profiles |
 | POST | `/api/jobs` | Add job application |
 | POST | `/api/roadmaps/generate` | Generate AI career roadmap |
 
-All protected routes require `Authorization: Bearer <token>` header or `token` cookie.
+All protected routes require `Authorization: Bearer <token>` header or the configured auth cookie.
 
 ## Notes
 
-- This boilerplate intentionally has **no admin panel** per project requirements.
-- Multer stores files locally and temporarily before forwarding to Cloudinary, then deletes the local copy.
-- Gemini responses are strictly parsed as JSON via prompt instructions in `services/geminiService.js`.
+- Multer stores files locally and temporarily before forwarding to Cloudinary when configured.
+- Gemini responses are parsed through prompt instructions in `backend/services/geminiService.js`.
+- Public coding profile data is cached in MongoDB for later analysis history.

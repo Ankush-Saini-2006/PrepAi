@@ -12,9 +12,9 @@ export const FEATURES_CONFIG = [
     description: "Review uploaded resumes with AI-assisted feedback when a user provides a document.",
   },
   {
-    icon: "MessageSquareText",
-    title: "Interview practice",
-    description: "Run mock interview flows and store feedback inside authenticated preparation sessions.",
+    icon: "Code2",
+    title: "Coding profile insights",
+    description: "Connect coding profiles and review AI-powered readiness insights inside authenticated preparation sessions.",
   },
   {
     icon: "BriefcaseBusiness",

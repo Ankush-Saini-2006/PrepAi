@@ -45,7 +45,6 @@ const categories = [
   "Aptitude",
   "Resume",
   "Projects",
-  "Mock Interviews",
   "Company Preparation",
   "Revision",
   "Custom",
