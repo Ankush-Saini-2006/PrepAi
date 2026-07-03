@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
+  FileSearch,
   MessageSquareText,
   Briefcase,
   Map,
@@ -11,6 +12,7 @@ import {
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/dashboard/resume", label: "Resume Analyzer", icon: FileText },
+  { to: "/dashboard/resume-job-match", label: "Resume vs Job Description", icon: FileSearch },
   { to: "/dashboard/interview", label: "Mock Interview", icon: MessageSquareText },
   { to: "/dashboard/jobs", label: "Job Tracker", icon: Briefcase },
   { to: "/dashboard/roadmap", label: "Career Roadmap", icon: Map },

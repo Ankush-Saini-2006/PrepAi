@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchCurrentUser, refreshAccessToken } from "./features/auth/authSlice";
+import { fetchCurrentUser } from "./features/auth/authSlice";
 import useSessionEvents from "./hooks/useSessionEvents";
 
 import PublicLayout from "./components/layout/PublicLayout";
@@ -21,6 +21,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 // Protected pages
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import ResumeAnalyzerPage from "./pages/resume/ResumeAnalyzerPage";
+import ResumeJobMatch from "./pages/ResumeJobMatch";
 import MockInterviewPage from "./pages/interview/MockInterviewPage";
 import JobTrackerPage from "./pages/jobs/JobTrackerPage";
 import RoadmapPage from "./pages/roadmap/RoadmapPage";
@@ -68,10 +69,22 @@ function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="resume" element={<ResumeAnalyzerPage />} />
+        <Route path="resume-job-match" element={<ResumeJobMatch />} />
         <Route path="interview" element={<MockInterviewPage />} />
         <Route path="jobs" element={<JobTrackerPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
         <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+      <Route
+        path="/resume-job-match"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ResumeJobMatch />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

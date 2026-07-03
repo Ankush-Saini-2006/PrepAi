@@ -96,6 +96,36 @@ Return a JSON object with this exact structure:
 }
 `;
 
+const matchResumeToJobDescriptionPrompt = (resumeText, jobDescription) => `
+You are an expert ATS evaluator and senior technical recruiter.
+Compare the candidate resume against the pasted job description.
+
+Resume Text:
+"""
+${resumeText}
+"""
+
+Job Description:
+"""
+${jobDescription}
+"""
+
+Return a JSON object with this exact structure:
+{
+  "matchScore": <number 0-100>,
+  "overallReadinessScore": <number 0-100>,
+  "atsCompatibilityScore": <number 0-100>,
+  "summary": "<2-3 sentence summary of fit, readiness, and most important gap>",
+  "matchingSkills": ["string", ...],
+  "missingSkills": ["string", ...],
+  "missingKeywords": ["string", ...],
+  "weakAreas": ["string", ...],
+  "improvementSuggestions": ["string", ...]
+}
+
+Evaluate only from the supplied resume and job description. Keep all lists concise, specific, and job-relevant.
+`;
+
 const generateInterviewQuestionsPrompt = (role, type, difficulty, count = 5) => `
 You are a senior technical interviewer at a top tech company.
 Generate ${count} interview questions for the role "${role}".
@@ -146,8 +176,8 @@ module.exports = {
   generateContent,
   generateJSON,
   analyzeResumePrompt,
+  matchResumeToJobDescriptionPrompt,
   generateInterviewQuestionsPrompt,
   evaluateAnswerPrompt,
   generateRoadmapPrompt,
 };
-
