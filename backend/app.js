@@ -15,6 +15,7 @@ const resumeJobMatchRoutes = require("./routes/resumeJobMatch.routes");
 const interviewRoutes= require("./routes/interviewRoutes");
 const jobRoutes      = require("./routes/jobRoutes");
 const roadmapRoutes  = require("./routes/roadmapRoutes");
+const chatRoutes     = require("./routes/chat.routes");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api/resume-job-match", resumeJobMatchRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/jobs",       jobRoutes);
 app.use("/api/roadmaps",   roadmapRoutes);
+app.use("/api/chat",       chatRoutes);
 
 // ─── Error handling ────────────────────────────────────────────────────────
 app.use(notFound);
