@@ -50,15 +50,26 @@ const normalizeCodingProfiles = (profiles = {}) => ({
   hackerrank: String(profiles.hackerrank || "").trim(),
 });
 
+const normalizeYear = (value) => {
+  if (value === undefined || value === null || value === "") return null;
+  const year = Number(value);
+  if (!Number.isInteger(year) || year < 1900 || year > 2100) return null;
+  return year;
+};
+
 // @desc    Update profile
 // @route   PUT /api/users/profile
 const updateProfile = asyncHandler(async (req, res) => {
   const {
     achievements,
     careerGoals,
+    dreamCompany,
     certificates,
     codingProfiles,
+    expectedPackage,
+    graduationYear,
     name,
+    preferredTechStack,
     projects,
     targetRole,
     skills,
@@ -70,6 +81,17 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   if (name !== undefined) user.name = name;
   if (targetRole !== undefined) user.targetRole = targetRole;
+  if (dreamCompany !== undefined) user.dreamCompany = String(dreamCompany || "").trim();
+  if (expectedPackage !== undefined) user.expectedPackage = String(expectedPackage || "").trim();
+  if (graduationYear !== undefined) user.graduationYear = normalizeYear(graduationYear);
+  if (preferredTechStack !== undefined) {
+    user.preferredTechStack = Array.isArray(preferredTechStack)
+      ? preferredTechStack.map((item) => String(item).trim()).filter(Boolean)
+      : String(preferredTechStack)
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+  }
   if (role !== undefined) user.role = role;
   if (skills !== undefined) {
     user.skills = Array.isArray(skills)

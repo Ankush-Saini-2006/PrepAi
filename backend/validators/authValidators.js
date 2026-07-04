@@ -41,9 +41,16 @@ const resendVerificationValidator = [
 const updateProfileValidator = [
   body("name").optional().trim().isLength({ min: 1, max: 60 }).withMessage("Name must be 1-60 characters"),
   body("targetRole").optional().trim().isLength({ max: 100 }),
+  body("dreamCompany").optional().trim().isLength({ max: 120 }),
+  body("expectedPackage").optional().trim().isLength({ max: 60 }),
+  body("graduationYear")
+    .optional()
+    .isInt({ min: 1900, max: 2100 })
+    .withMessage("Graduation year must be a valid year"),
   body("role").optional().isIn(["student", "professional"]).withMessage("Invalid role"),
   body("skills").optional(),
   body("careerGoals").optional().isArray().withMessage("Career goals must be an array"),
+  body("preferredTechStack").optional(),
   body("projects").optional().isArray().withMessage("Projects must be an array"),
   body("certificates").optional().isArray().withMessage("Certificates must be an array"),
   body("achievements").optional().isArray().withMessage("Achievements must be an array"),

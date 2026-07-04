@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema(
     targetRole: { type: String, default: "" },
     skills: [{ type: String }],
     careerGoals: [{ type: String }],
+    dreamCompany: { type: String, default: "" },
+    preferredTechStack: [{ type: String }],
+    expectedPackage: { type: String, default: "" },
+    graduationYear: { type: Number, default: null },
     profileResume: {
       url: { type: String, default: "" },
       publicId: { type: String, default: "" },

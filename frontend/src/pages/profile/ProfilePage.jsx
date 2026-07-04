@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { AlertTriangle, Camera, Download, Plus, ShieldOff, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Camera, Check, Download, Eye, Pencil, Plus, ShieldOff, Trash2, Upload, X } from "lucide-react";
 import {
   updateProfile,
   changePassword,
@@ -129,6 +129,118 @@ const toDateInput = (value) => {
 
 const listToText = (value) => (Array.isArray(value) ? value.join(", ") : value || "");
 
+const textToList = (value) =>
+  String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const ResumePreviewModal = ({ resume, onClose }) => {
+  if (!resume?.url) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-8 backdrop-blur-sm">
+      <div className="relative h-[85vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Resume Preview</p>
+            <p className="text-xs text-gray-500">{resume.originalName || "Uploaded resume"}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:bg-gray-50 hover:text-gray-900"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <iframe title="Resume preview" src={resume.url} className="h-[calc(85vh-73px)] w-full" />
+      </div>
+    </div>
+  );
+};
+
+const SkillChipsEditor = ({ skills, onChange }) => {
+  const [input, setInput] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+
+  const commitSkill = () => {
+    const value = input.trim();
+    if (!value) return;
+
+    if (editingIndex === null) {
+      if (skills.some((skill) => skill.toLowerCase() === value.toLowerCase())) {
+        toast.error("Skill already added");
+        return;
+      }
+      onChange([...skills, value]);
+    } else {
+      const nextSkills = skills.map((skill, index) => (index === editingIndex ? value : skill));
+      onChange(nextSkills);
+      setEditingIndex(null);
+    }
+
+    setInput("");
+  };
+
+  const startEdit = (index) => {
+    setEditingIndex(index);
+    setInput(skills[index] || "");
+  };
+
+  const removeSkill = (index) => {
+    onChange(skills.filter((_, skillIndex) => skillIndex !== index));
+    if (editingIndex === index) {
+      setEditingIndex(null);
+      setInput("");
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        {skills.length ? (
+          skills.map((skill, index) => (
+            <span
+              key={`${skill}-${index}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700"
+            >
+              {skill}
+              <button type="button" onClick={() => startEdit(index)} className="text-primary-500 hover:text-primary-700">
+                <Pencil size={12} />
+              </button>
+              <button type="button" onClick={() => removeSkill(index)} className="text-primary-500 hover:text-red-600">
+                <Trash2 size={12} />
+              </button>
+            </span>
+          ))
+        ) : (
+          <p className="text-xs text-gray-400">Add your core skills as individual chips.</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input
+          className="input-field flex-1"
+          placeholder="Add a skill like React or Node.js"
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commitSkill();
+            }
+          }}
+        />
+        <Button type="button" variant="secondary" onClick={commitSkill} className="shrink-0">
+          {editingIndex === null ? <Plus size={15} /> : <Check size={15} />}
+          {editingIndex === null ? "Add Skill" : "Save Skill"}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const ProfileItemEditor = ({ title, items, emptyItem, fields, onChange, addLabel }) => {
   const updateItem = (index, key, value) => {
     onChange(items.map((item, itemIndex) => (itemIndex === index ? { ...item, [key]: value } : item)));
@@ -188,8 +300,10 @@ const ProfilePage = () => {
 
   const [resendingVerification, setResendingVerification] = useState(false);
   const resumeRef = useRef();
+  const [resumePreviewOpen, setResumePreviewOpen] = useState(false);
   const [careerGoals, setCareerGoals] = useState([]);
   const [goalInput, setGoalInput] = useState("");
+  const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [achievements, setAchievements] = useState([]);
@@ -205,6 +319,7 @@ const ProfilePage = () => {
   useEffect(() => {
     if (!user) return;
     setCareerGoals(user.careerGoals || []);
+    setSkills(user.skills || []);
     setProjects((user.projects || []).map((project) => ({ ...project, techStack: listToText(project.techStack) })));
     setCertificates((user.certificates || []).map((certificate) => ({ ...certificate, issuedAt: toDateInput(certificate.issuedAt) })));
     setAchievements((user.achievements || []).map((achievement) => ({ ...achievement, date: toDateInput(achievement.date) })));
@@ -222,15 +337,31 @@ const ProfilePage = () => {
   const {
     register: regProfile,
     handleSubmit: handleProfile,
+    reset: resetProfile,
     formState: { errors: profileErrors, isSubmitting: profileSubmitting },
   } = useForm({
     defaultValues: {
       name: user?.name || "",
       targetRole: user?.targetRole || "",
-      skills: user?.skills?.join(", ") || "",
+      dreamCompany: user?.dreamCompany || "",
+      preferredTechStack: listToText(user?.preferredTechStack),
+      expectedPackage: user?.expectedPackage || "",
+      graduationYear: user?.graduationYear || "",
       role: user?.role || "student",
     },
   });
+
+  useEffect(() => {
+    resetProfile({
+      name: user?.name || "",
+      targetRole: user?.targetRole || "",
+      dreamCompany: user?.dreamCompany || "",
+      preferredTechStack: listToText(user?.preferredTechStack),
+      expectedPackage: user?.expectedPackage || "",
+      graduationYear: user?.graduationYear || "",
+      role: user?.role || "student",
+    });
+  }, [resetProfile, user]);
 
   // Password form
   const {
@@ -249,8 +380,12 @@ const ProfilePage = () => {
       updateProfile({
         name: data.name,
         targetRole: data.targetRole,
+        dreamCompany: data.dreamCompany,
+        preferredTechStack: textToList(data.preferredTechStack),
+        expectedPackage: data.expectedPackage,
+        graduationYear: data.graduationYear,
         role: data.role,
-        skills: data.skills,
+        skills,
         careerGoals,
         projects: projects.map((project) => ({
           ...project,
@@ -332,6 +467,14 @@ const ProfilePage = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || "Resume download failed");
     }
+  };
+
+  const handleResumePreview = () => {
+    if (!user?.profileResume?.url) {
+      toast.error("No resume uploaded");
+      return;
+    }
+    setResumePreviewOpen(true);
   };
 
   const addCareerGoal = () => {
@@ -416,13 +559,38 @@ const ProfilePage = () => {
 
           <FormField
             label="Skills"
-            hint="Comma-separated: React, Node.js, Python…"
-            error={profileErrors.skills?.message}
+            hint="Add, edit, or delete your skills as individual chips."
           >
+            <SkillChipsEditor skills={skills} onChange={setSkills} />
+          </FormField>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Dream Company">
+              <input
+                className="input-field"
+                placeholder="e.g. Google, Atlassian, Flipkart"
+                {...regProfile("dreamCompany")}
+              />
+            </FormField>
+
+            <FormField label="Graduation Year">
+              <input className="input-field" type="number" placeholder="2026" {...regProfile("graduationYear")} />
+            </FormField>
+          </div>
+
+          <FormField label="Preferred Tech Stack">
             <input
               className="input-field"
               placeholder="React, Node.js, MongoDB"
-              {...regProfile("skills")}
+              {...regProfile("preferredTechStack")}
+            />
+          </FormField>
+
+          <FormField label="Expected Package">
+            <input
+              className="input-field"
+              placeholder="e.g. 12 LPA"
+              {...regProfile("expectedPackage")}
             />
           </FormField>
 
@@ -447,6 +615,9 @@ const ProfilePage = () => {
             </Button>
             {user?.profileResume?.url ? (
               <>
+                <Button type="button" variant="secondary" onClick={handleResumePreview}>
+                  <Eye size={15} /> Preview
+                </Button>
                 <Button type="button" variant="secondary" onClick={handleResumeDownload}>
                   <Download size={15} /> Download
                 </Button>
@@ -612,6 +783,10 @@ const ProfilePage = () => {
           </Button>
         </div>
       </Section>
+
+      {resumePreviewOpen ? (
+        <ResumePreviewModal resume={user?.profileResume} onClose={() => setResumePreviewOpen(false)} />
+      ) : null}
     </div>
   );
 };
